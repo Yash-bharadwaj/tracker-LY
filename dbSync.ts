@@ -158,7 +158,16 @@ export class SyncDatabase {
       const response = await fetch(`${API_BASE}/sessions`, { signal: controller.signal });
       clearTimeout(timeoutId);
       
-      if (!response.ok) throw new Error('Failed to fetch sessions');
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => 'Unknown error');
+        let errorData;
+        try {
+          errorData = JSON.parse(errorText);
+        } catch {
+          errorData = { error: errorText };
+        }
+        throw new Error(`Failed to fetch sessions (${response.status}): ${errorData.error || errorText}`);
+      }
       
       const contentType = response.headers.get('content-type');
       if (!contentType || !contentType.includes('application/json')) {
@@ -185,6 +194,7 @@ export class SyncDatabase {
       } else {
         console.error('Sync failed:', error);
       }
+      throw error; // Re-throw to be caught by App.tsx
     } finally {
       this.syncInProgress = false;
     }

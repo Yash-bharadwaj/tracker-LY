@@ -1,11 +1,18 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { Pool } from 'pg';
 
+if (!process.env.POSTGRES_URL) {
+  console.error('POSTGRES_URL environment variable is not set');
+}
+
 const pool = new Pool({
   connectionString: process.env.POSTGRES_URL,
   ssl: {
     rejectUnauthorized: false
-  }
+  },
+  max: 5,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 10000,
 });
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {

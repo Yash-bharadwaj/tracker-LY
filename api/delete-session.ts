@@ -1,11 +1,18 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { Pool } from 'pg';
 
+if (!process.env.POSTGRES_URL) {
+  console.error('POSTGRES_URL environment variable is not set');
+}
+
 const pool = new Pool({
   connectionString: process.env.POSTGRES_URL,
   ssl: {
     rejectUnauthorized: false
-  }
+  },
+  max: 5,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 10000,
 });
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -30,7 +37,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       res.status(405).json({ error: 'Method not allowed' });
     }
   } catch (error: any) {
-    res.status(500).json({ error: error.message });
+    console.error('Delete session API error:', error);
+    const errorMessage = error.message || 'Internal server error';
+    const errorResponse: any = { error: errorMessage };
+    
+    if (process.env.NODE_ENV === 'development' || error.code === 'ECONNREFUSED' || error.code === 'ETIMEDOUT') {
+      errorResponse.stack = error.stack;
+      errorResponse.code = error.code;
+    }
+    
+    res.status(500).json(errorResponse);
   }
 }
 
