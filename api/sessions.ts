@@ -38,6 +38,7 @@ async function ensureTables() {
         "startTime" VARCHAR(5) NOT NULL,
         "endTime" VARCHAR(5) NOT NULL,
         task TEXT NOT NULL,
+        notes TEXT,
         "durationMinutes" INTEGER NOT NULL,
         "createdAt" BIGINT NOT NULL,
         "updatedAt" BIGINT DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT
@@ -49,6 +50,10 @@ async function ensureTables() {
         "updatedAt" BIGINT DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT,
         PRIMARY KEY ("userId", key)
       );
+    `);
+    // Add notes column if it doesn't exist (for existing databases)
+    await client.query(`
+      ALTER TABLE sessions ADD COLUMN IF NOT EXISTS notes TEXT;
     `);
   } finally {
     client.release();
@@ -89,15 +94,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
       res.status(200).json({ sessions: result.rows });
     } else if (req.method === 'POST') {
-      const { id, userId, date, startTime, endTime, task, durationMinutes, createdAt } = req.body;
+      const { id, userId, date, startTime, endTime, task, notes, durationMinutes, createdAt } = req.body;
       await pool.query(`
-        INSERT INTO sessions (id, "userId", date, "startTime", "endTime", task, "durationMinutes", "createdAt", "updatedAt")
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        INSERT INTO sessions (id, "userId", date, "startTime", "endTime", task, notes, "durationMinutes", "createdAt", "updatedAt")
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
         ON CONFLICT (id) DO UPDATE SET
           "userId" = EXCLUDED."userId", date = EXCLUDED.date, "startTime" = EXCLUDED."startTime",
-          "endTime" = EXCLUDED."endTime", task = EXCLUDED.task, "durationMinutes" = EXCLUDED."durationMinutes",
+          "endTime" = EXCLUDED."endTime", task = EXCLUDED.task, notes = EXCLUDED.notes, "durationMinutes" = EXCLUDED."durationMinutes",
           "updatedAt" = EXCLUDED."updatedAt"
-      `, [id, userId, date, startTime, endTime, task, durationMinutes, createdAt || Date.now(), Date.now()]);
+      `, [id, userId, date, startTime, endTime, task, notes || null, durationMinutes, createdAt || Date.now(), Date.now()]);
       res.status(201).json({ success: true });
     } else {
       res.status(405).json({ error: 'Method not allowed' });

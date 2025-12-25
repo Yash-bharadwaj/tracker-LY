@@ -25,6 +25,7 @@ const AddSessionSheet: React.FC<AddSessionSheetProps> = ({
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
   const [task, setTask] = useState('');
+  const [notes, setNotes] = useState('');
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -33,6 +34,7 @@ const AddSessionSheet: React.FC<AddSessionSheetProps> = ({
       setStartTime(editingSession.startTime);
       setEndTime(editingSession.endTime);
       setTask(editingSession.task);
+      setNotes(editingSession.notes || '');
     } else {
       const now = new Date();
       const format = (d: number) => d.toString().padStart(2, '0');
@@ -43,6 +45,7 @@ const AddSessionSheet: React.FC<AddSessionSheetProps> = ({
       const end = new Date(now.getTime() + 60 * 60000);
       setEndTime(`${format(end.getHours())}:${format(end.getMinutes())}`);
       setTask('');
+      setNotes('');
     }
     setError('');
   }, [editingSession, isOpen]);
@@ -81,6 +84,7 @@ const AddSessionSheet: React.FC<AddSessionSheetProps> = ({
       startTime,
       endTime,
       task: task.trim(),
+      notes: notes.trim() || undefined,
       durationMinutes: duration,
       createdAt: editingSession?.createdAt || Date.now()
     });
@@ -151,6 +155,17 @@ const AddSessionSheet: React.FC<AddSessionSheetProps> = ({
               value={endTime}
               onChange={(e) => setEndTime(e.target.value)}
               className="w-full bg-white/5 rounded-xl sm:rounded-2xl p-3 sm:p-4 text-sm sm:text-base text-white font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500/20 [color-scheme:dark]"
+            />
+          </div>
+
+          <div className="space-y-1.5 sm:space-y-2">
+            <label className="text-[9px] sm:text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">Notes (Optional)</label>
+            <textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Add any additional notes or thoughts..."
+              rows={3}
+              className="w-full bg-white/5 rounded-xl sm:rounded-2xl p-3 sm:p-4 text-sm sm:text-base text-white placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 resize-none font-medium leading-relaxed"
             />
           </div>
 

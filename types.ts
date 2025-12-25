@@ -8,6 +8,7 @@ export interface Session {
   startTime: string; // HH:mm
   endTime: string; // HH:mm
   task: string;
+  notes?: string; // Optional notes field
   durationMinutes: number;
   createdAt: number;
 }

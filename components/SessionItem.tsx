@@ -30,6 +30,14 @@ const SessionItem: React.FC<SessionItemProps> = ({ session, onDelete, onEdit }) 
             </span>
           </div>
           <h3 className="text-white font-semibold text-base sm:text-lg leading-tight mb-1 truncate">{session.task}</h3>
+          {session.notes && (
+            <p className="text-white/60 text-xs sm:text-sm leading-relaxed mb-1.5 sm:mb-2 overflow-hidden" style={{ 
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+              maxHeight: '2.5em'
+            }}>{session.notes}</p>
+          )}
           <div className="flex items-center gap-1.5 sm:gap-2">
              <Clock size={11} className="sm:w-3 sm:h-3 text-indigo-400 flex-shrink-0" />
              <span className="text-[10px] sm:text-xs font-bold text-indigo-400/80">{formatDuration(session.durationMinutes)}</span>

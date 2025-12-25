@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS sessions (
   "startTime" VARCHAR(5) NOT NULL,
   "endTime" VARCHAR(5) NOT NULL,
   task TEXT NOT NULL,
+  notes TEXT,
   "durationMinutes" INTEGER NOT NULL,
   "createdAt" BIGINT NOT NULL,
   "updatedAt" BIGINT DEFAULT EXTRACT(EPOCH FROM NOW()) * 1000
