@@ -1,52 +1,34 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { dbService } from '../services/dbService';
+import { Pool } from 'pg';
+
+const pool = new Pool({
+  connectionString: process.env.POSTGRES_URL,
+  ssl: { rejectUnauthorized: false }
+});
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader('Cache-Control', 'no-store, max-age=0');
+  const { userId, key } = req.query;
 
-  if (req.method === 'GET') {
-    try {
-      const userId = req.query.userId as string;
-      const key = req.query.key as string | undefined;
-
-      if (!userId) {
-        return res.status(400).json({ error: 'userId is required' });
-      }
-
-      if (key) {
-        const value = await dbService.getSetting(userId, key);
-        return res.status(200).json({ key, value });
-      } else {
-        const settings = await dbService.getAllSettings(userId);
-        return res.status(200).json({ settings });
-      }
-    } catch (error: any) {
-      console.error('Error in GET /api/settings:', error);
-      return res.status(500).json({ 
-        error: 'Failed to fetch settings', 
-        message: error.message,
-        details: error.stack
-      });
-    }
-  } else if (req.method === 'POST') {
-    try {
+  try {
+    if (req.method === 'GET') {
+      if (!userId) return res.status(400).json({ error: 'userId required' });
+      const result = await pool.query('SELECT key, value FROM settings WHERE "userId" = $1', [userId]);
+      const settings: any = {};
+      result.rows.forEach(r => { settings[r.key] = JSON.parse(r.value || 'null'); });
+      res.status(200).json({ settings });
+    } else if (req.method === 'POST') {
       const { userId, key, value } = req.body;
-
-      if (!userId || !key) {
-        return res.status(400).json({ error: 'userId and key are required' });
-      }
-
-      await dbService.setSetting(userId, key, value);
-      return res.status(200).json({ success: true, key, value });
-    } catch (error: any) {
-      console.error('Error in POST /api/settings:', error);
-      return res.status(500).json({ 
-        error: 'Failed to save setting', 
-        message: error.message,
-        details: error.stack
-      });
+      await pool.query(`
+        INSERT INTO settings ("userId", key, value, "updatedAt")
+        VALUES ($1, $2, $3, $4)
+        ON CONFLICT ("userId", key) DO UPDATE SET value = EXCLUDED.value, "updatedAt" = EXCLUDED."updatedAt"
+      `, [userId, key, JSON.stringify(value), Date.now()]);
+      res.status(200).json({ success: true });
+    } else {
+      res.status(405).json({ error: 'Method not allowed' });
     }
-  } else {
-    return res.status(405).json({ error: 'Method not allowed' });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
   }
 }

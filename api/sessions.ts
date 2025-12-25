@@ -1,58 +1,41 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { dbService } from '../services/dbService';
-import { Session } from '../types';
+import { Pool } from 'pg';
+
+const pool = new Pool({
+  connectionString: process.env.POSTGRES_URL,
+  ssl: { rejectUnauthorized: false }
+});
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader('Cache-Control', 'no-store, max-age=0');
+  const { userId, date } = req.query;
 
-  if (req.method === 'GET') {
-    try {
-      const userId = req.query.userId as string | undefined;
-      const date = req.query.date as string | undefined;
-
-      let sessions: Session[];
-
-      if (date) {
-        sessions = await dbService.getSessionsByDate(date, userId);
+  try {
+    if (req.method === 'GET') {
+      let result;
+      if (userId && date) {
+        result = await pool.query('SELECT * FROM sessions WHERE "userId" = $1 AND date = $2 ORDER BY "startTime" ASC', [userId, date]);
+      } else if (userId) {
+        result = await pool.query('SELECT * FROM sessions WHERE "userId" = $1 ORDER BY date DESC, "startTime" DESC', [userId]);
       } else {
-        sessions = await dbService.getAllSessions(userId);
+        result = await pool.query('SELECT * FROM sessions ORDER BY date DESC, "startTime" DESC');
       }
-
-      return res.status(200).json({ sessions });
-    } catch (error: any) {
-      console.error('Error in GET /api/sessions:', error);
-      return res.status(500).json({ 
-        error: 'Failed to fetch sessions', 
-        message: error.message,
-        details: error.stack
-      });
+      res.status(200).json({ sessions: result.rows });
+    } else if (req.method === 'POST') {
+      const { id, userId, date, startTime, endTime, task, durationMinutes, createdAt } = req.body;
+      await pool.query(`
+        INSERT INTO sessions (id, "userId", date, "startTime", "endTime", task, "durationMinutes", "createdAt", "updatedAt")
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        ON CONFLICT (id) DO UPDATE SET
+          "userId" = EXCLUDED."userId", date = EXCLUDED.date, "startTime" = EXCLUDED."startTime",
+          "endTime" = EXCLUDED."endTime", task = EXCLUDED.task, "durationMinutes" = EXCLUDED."durationMinutes",
+          "updatedAt" = EXCLUDED."updatedAt"
+      `, [id, userId, date, startTime, endTime, task, durationMinutes, createdAt || Date.now(), Date.now()]);
+      res.status(201).json({ success: true });
+    } else {
+      res.status(405).json({ error: 'Method not allowed' });
     }
-  } else if (req.method === 'POST') {
-    try {
-      const body = req.body;
-      const session: Session = {
-        id: body.id,
-        userId: body.userId,
-        date: body.date,
-        startTime: body.startTime,
-        endTime: body.endTime,
-        task: body.task,
-        durationMinutes: body.durationMinutes,
-        createdAt: body.createdAt || Date.now()
-      };
-
-      const savedSession = await dbService.saveSession(session);
-      return res.status(201).json({ session: savedSession });
-    } catch (error: any) {
-      console.error('Error in POST /api/sessions:', error);
-      return res.status(500).json({ 
-        error: 'Failed to create session', 
-        message: error.message,
-        details: error.stack
-      });
-    }
-  } else {
-    return res.status(405).json({ error: 'Method not allowed' });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
   }
 }
-

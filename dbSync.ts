@@ -70,7 +70,7 @@ export class SyncDatabase {
     if (this.isOnline) {
       try {
         this.syncInProgress = true;
-        const response = await fetch(`${API_BASE}/sessions/${id}`, {
+        const response = await fetch(`${API_BASE}/delete-session?id=${id}`, {
           method: 'DELETE'
         });
         
@@ -81,7 +81,6 @@ export class SyncDatabase {
         this.lastSyncTime = Date.now();
       } catch (err) {
         console.error('Failed to delete session from server:', err);
-        // Session is still deleted locally, will be handled on next sync
       } finally {
         this.syncInProgress = false;
       }
