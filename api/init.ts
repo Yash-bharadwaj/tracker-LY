@@ -1,15 +1,9 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { Pool } from 'pg';
-
-const pool = new Pool({
-  connectionString: process.env.POSTGRES_URL,
-  ssl: {
-    rejectUnauthorized: false
-  }
-});
+import { getPool } from './_db';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
+    const pool = getPool();
     const client = await pool.connect();
     try {
       await client.query(`
@@ -37,7 +31,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       client.release();
     }
   } catch (error: any) {
-    res.status(500).json({ success: false, error: error.message, stack: error.stack });
+    console.error('API Init Error:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message,
+      hint: 'Ensure POSTGRES_URL is correct and not wrapped in extra quotes.'
+    });
   }
 }
 

@@ -1,18 +1,12 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { Pool } from 'pg';
-
-const pool = new Pool({
-  connectionString: process.env.POSTGRES_URL,
-  ssl: {
-    rejectUnauthorized: false
-  }
-});
+import { getPool } from './_db';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader('Cache-Control', 'no-store, max-age=0');
-  const { userId, key } = req.query;
+  const { userId } = req.query;
 
   try {
+    const pool = getPool();
     if (req.method === 'GET') {
       if (!userId) return res.status(400).json({ error: 'userId required' });
       const result = await pool.query('SELECT key, value FROM settings WHERE "userId" = $1', [userId]);
@@ -31,6 +25,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       res.status(405).json({ error: 'Method not allowed' });
     }
   } catch (error: any) {
+    console.error('API Settings Error:', error);
     res.status(500).json({ error: error.message });
   }
 }
+
