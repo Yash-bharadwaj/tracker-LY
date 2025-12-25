@@ -1,6 +1,6 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { dbService } from '../services/dbService';
-import { Session } from '../types';
+import { dbService } from '../../services/dbService';
+import { Session } from '../../types';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method === 'GET') {
