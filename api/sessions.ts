@@ -1,12 +1,18 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { getPool, mapSession } from './_db';
+import { Pool } from 'pg';
+
+const pool = new Pool({
+  connectionString: process.env.POSTGRES_URL,
+  ssl: {
+    rejectUnauthorized: false
+  }
+});
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader('Cache-Control', 'no-store, max-age=0');
   const { userId, date } = req.query;
 
   try {
-    const pool = getPool();
     if (req.method === 'GET') {
       let result;
       if (userId && date) {
@@ -16,9 +22,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       } else {
         result = await pool.query('SELECT * FROM sessions ORDER BY date DESC, "startTime" DESC');
       }
-      // Properly map Postgres BIGINT to JS numbers
-      const sessions = result.rows.map(mapSession);
-      res.status(200).json({ sessions });
+      res.status(200).json({ sessions: result.rows });
     } else if (req.method === 'POST') {
       const { id, userId, date, startTime, endTime, task, durationMinutes, createdAt } = req.body;
       await pool.query(`
@@ -34,8 +38,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       res.status(405).json({ error: 'Method not allowed' });
     }
   } catch (error: any) {
-    console.error('API Sessions Error:', error);
     res.status(500).json({ error: error.message });
   }
 }
-
