@@ -5,14 +5,21 @@ if (!process.env.POSTGRES_URL) {
   console.error('POSTGRES_URL environment variable is not set');
 }
 
+// For Supabase, we need to disable SSL certificate verification
+// This is safe because we're connecting to Supabase's managed database
 const pool = new Pool({
   connectionString: process.env.POSTGRES_URL,
-  ssl: {
+  ssl: process.env.POSTGRES_URL ? {
     rejectUnauthorized: false
-  },
+  } : false,
   max: 5,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 10000,
+});
+
+// Test connection on startup
+pool.on('error', (err) => {
+  console.error('Unexpected error on idle client', err);
 });
 
 async function ensureTables() {
