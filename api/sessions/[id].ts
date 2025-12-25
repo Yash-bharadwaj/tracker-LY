@@ -12,6 +12,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         res.status(404).json({ error: 'Session not found' });
         return;
       }
+      res.setHeader('Cache-Control', 'no-store, max-age=0');
       res.status(200).json({ session });
     } catch (error: any) {
       console.error('Error in GET /api/sessions/[id]:', error);

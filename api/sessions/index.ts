@@ -16,6 +16,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         sessions = await dbService.getAllSessions(userId);
       }
 
+      res.setHeader('Cache-Control', 'no-store, max-age=0');
       res.status(200).json({ sessions });
     } catch (error: any) {
       console.error('Error in GET /api/sessions:', error);

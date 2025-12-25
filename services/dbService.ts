@@ -2,7 +2,48 @@ import { sql } from '@vercel/postgres';
 import { Session } from '../types';
 
 export class DbService {
+  private initialized = false;
+
+  async ensureTables() {
+    if (this.initialized) return;
+    
+    try {
+      // Create sessions table
+      await sql`
+        CREATE TABLE IF NOT EXISTS sessions (
+          id VARCHAR(255) PRIMARY KEY,
+          "userId" VARCHAR(50) NOT NULL,
+          date VARCHAR(10) NOT NULL,
+          "startTime" VARCHAR(5) NOT NULL,
+          "endTime" VARCHAR(5) NOT NULL,
+          task TEXT NOT NULL,
+          "durationMinutes" INTEGER NOT NULL,
+          "createdAt" BIGINT NOT NULL,
+          "updatedAt" BIGINT DEFAULT EXTRACT(EPOCH FROM NOW()) * 1000
+        )
+      `;
+
+      // Create settings table
+      await sql`
+        CREATE TABLE IF NOT EXISTS settings (
+          "userId" VARCHAR(50) NOT NULL,
+          key VARCHAR(255) NOT NULL,
+          value TEXT,
+          "updatedAt" BIGINT DEFAULT EXTRACT(EPOCH FROM NOW()) * 1000,
+          PRIMARY KEY ("userId", key)
+        )
+      `;
+
+      this.initialized = true;
+      console.log('Database tables initialized');
+    } catch (error) {
+      console.error('Failed to initialize database tables:', error);
+      throw error;
+    }
+  }
+
   async getAllSessions(userId?: string): Promise<Session[]> {
+    await this.ensureTables();
     try {
       let result;
       if (userId) {
@@ -25,6 +66,7 @@ export class DbService {
   }
 
   async getSessionsByDate(date: string, userId?: string): Promise<Session[]> {
+    await this.ensureTables();
     try {
       let result;
       if (userId) {
@@ -48,6 +90,7 @@ export class DbService {
   }
 
   async getSessionById(id: string): Promise<Session | null> {
+    await this.ensureTables();
     try {
       const result = await sql`
         SELECT * FROM sessions WHERE id = ${id}
@@ -61,6 +104,7 @@ export class DbService {
   }
 
   async saveSession(session: Session): Promise<Session> {
+    await this.ensureTables();
     try {
       await sql`
         INSERT INTO sessions (id, "userId", date, "startTime", "endTime", task, "durationMinutes", "createdAt", "updatedAt")
@@ -83,6 +127,7 @@ export class DbService {
   }
 
   async deleteSession(id: string): Promise<void> {
+    await this.ensureTables();
     try {
       await sql`
         DELETE FROM sessions WHERE id = ${id}
@@ -94,6 +139,7 @@ export class DbService {
   }
 
   async getSetting<T>(userId: string, key: string): Promise<T | null> {
+    await this.ensureTables();
     try {
       const result = await sql`
         SELECT value FROM settings 
@@ -108,6 +154,7 @@ export class DbService {
   }
 
   async setSetting(userId: string, key: string, value: any): Promise<void> {
+    await this.ensureTables();
     try {
       await sql`
         INSERT INTO settings ("userId", key, value, "updatedAt")
@@ -124,6 +171,7 @@ export class DbService {
   }
 
   async getAllSettings(userId: string): Promise<Record<string, any>> {
+    await this.ensureTables();
     try {
       const result = await sql`
         SELECT key, value FROM settings 
@@ -145,6 +193,7 @@ export class DbService {
   }
 
   async clearAllData(): Promise<void> {
+    await this.ensureTables();
     try {
       await sql`DELETE FROM sessions`;
       await sql`DELETE FROM settings`;
