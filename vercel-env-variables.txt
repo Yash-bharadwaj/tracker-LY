@@ -1,0 +1,38 @@
+# Vercel Environment Variables
+# Copy these into Vercel Dashboard → Settings → Environment Variables
+# Add each variable with its corresponding value
+
+# Supabase Configuration
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBlaG9vY2ZhYmFmbnZyYmRrcGJhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY2NTgyNTksImV4cCI6MjA4MjIzNDI1OX0.lXYKym8jsOL4IaDhNiyhJlaSxclQ-T_BJ79C1b9rolw
+
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_WyzjMrcVXPo5ah8uHS3zJg_fEOnrO3n
+
+NEXT_PUBLIC_SUPABASE_URL=https://pehoocfabafnvrbdkpba.supabase.co
+
+SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBlaG9vY2ZhYmFmbnZyYmRrcGJhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY2NTgyNTksImV4cCI6MjA4MjIzNDI1OX0.lXYKym8jsOL4IaDhNiyhJlaSxclQ-T_BJ79C1b9rolw
+
+SUPABASE_PUBLISHABLE_KEY=sb_publishable_WyzjMrcVXPo5ah8uHS3zJg_fEOnrO3n
+
+SUPABASE_URL=https://pehoocfabafnvrbdkpba.supabase.co
+
+SUPABASE_JWT_SECRET=GnCd7AXloUt4vWuhDqRE5WiVhHDUc5JemPnXFkVFiVPcUHJPuwylY1kT9bQ2wkt6oTxDytgqER84ONQmMHNXUg==
+
+SUPABASE_SECRET_KEY=sb_secret_UXKiacSepUFGWUBlj7vjpQ_DEr_XIu2
+
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBlaG9vY2ZhYmFmbnZyYmRrcGJhIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NjY1ODI1OSwiZXhwIjoyMDgyMjM0MjU5fQ.ZqmXaE6FW5cnv7YF_sBk4qDlzOyLiYJGxmAtmdlMBcs
+
+# PostgreSQL Database Configuration
+POSTGRES_DATABASE=postgres
+
+POSTGRES_HOST=db.pehoocfabafnvrbdkpba.supabase.co
+
+POSTGRES_PASSWORD=sOgckRGYXm80BGIx
+
+POSTGRES_PRISMA_URL=postgres://postgres.pehoocfabafnvrbdkpba:sOgckRGYXm80BGIx@aws-1-us-east-1.pooler.supabase.com:6543/postgres?sslmode=require&pgbouncer=true
+
+POSTGRES_URL=postgres://postgres.pehoocfabafnvrbdkpba:sOgckRGYXm80BGIx@aws-1-us-east-1.pooler.supabase.com:6543/postgres?sslmode=require&supa=base-pooler.x
+
+POSTGRES_URL_NON_POOLING=postgres://postgres.pehoocfabafnvrbdkpba:sOgckRGYXm80BGIx@aws-1-us-east-1.pooler.supabase.com:5432/postgres?sslmode=require
+
+POSTGRES_USER=postgres
+
