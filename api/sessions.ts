@@ -1,17 +1,22 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { Pool } from 'pg';
 
+// Disable SSL certificate verification for Supabase connections
+// This is required because Supabase uses self-signed certificates
+// Note: In production, you should set NODE_TLS_REJECT_UNAUTHORIZED=0 as an environment variable in Vercel
+if (typeof process.env.NODE_TLS_REJECT_UNAUTHORIZED === 'undefined') {
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+}
+
 if (!process.env.POSTGRES_URL) {
   console.error('POSTGRES_URL environment variable is not set');
 }
 
-// For Supabase, we need to disable SSL certificate verification
-// This is safe because we're connecting to Supabase's managed database
 const pool = new Pool({
   connectionString: process.env.POSTGRES_URL,
-  ssl: process.env.POSTGRES_URL ? {
+  ssl: {
     rejectUnauthorized: false
-  } : false,
+  },
   max: 5,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 10000,

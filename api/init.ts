@@ -1,6 +1,11 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { Pool } from 'pg';
 
+// Disable SSL certificate verification for Supabase connections
+if (typeof process.env.NODE_TLS_REJECT_UNAUTHORIZED === 'undefined') {
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+}
+
 if (!process.env.POSTGRES_URL) {
   console.error('POSTGRES_URL environment variable is not set');
 }
