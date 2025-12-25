@@ -1,7 +1,19 @@
 import { Session } from './types';
 import { db } from './db';
 
-const API_BASE = '/api';
+// Use environment variable for API base URL, fallback to relative path for production
+// For local dev, use VITE_API_BASE_URL from .env.local (e.g., https://tracker-ly.vercel.app)
+// For production, use relative path /api
+const getApiBase = () => {
+  // Check if we're in development and have a custom API URL
+  if (import.meta.env.DEV && import.meta.env.VITE_API_BASE_URL) {
+    return `${import.meta.env.VITE_API_BASE_URL}/api`;
+  }
+  // Production or no custom URL - use relative path
+  return '/api';
+};
+
+const API_BASE = getApiBase();
 const SYNC_INTERVAL = 60000; // 60 seconds - only for fetching other user's updates
 
 export class SyncDatabase {
