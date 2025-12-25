@@ -148,6 +148,15 @@ export class SyncDatabase {
       
       if (!response.ok) throw new Error('Failed to fetch sessions');
       
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await response.text();
+        if (text.trim().startsWith('import') || text.trim().startsWith('export')) {
+          throw new Error('API returning source code. Use "vercel dev" for local development.');
+        }
+        throw new Error(`Expected JSON but got ${contentType || 'unknown'}`);
+      }
+
       const data = await response.json();
       const serverSessions: Session[] = data.sessions || [];
       
@@ -203,6 +212,9 @@ export class SyncDatabase {
       const response = await fetch(`${API_BASE}/settings?userId=${userId}`);
       if (!response.ok) return;
       
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) return;
+
       const data = await response.json();
       const settings = data.settings || {};
       
