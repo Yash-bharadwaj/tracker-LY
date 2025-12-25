@@ -139,33 +139,31 @@ export class SyncDatabase {
     if (!this.isOnline || this.syncInProgress) return;
     
     this.syncInProgress = true;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+
     try {
-      const response = await fetch(`${API_BASE}/sessions`);
+      const response = await fetch(`${API_BASE}/sessions`, { signal: controller.signal });
+      clearTimeout(timeoutId);
+      
       if (!response.ok) throw new Error('Failed to fetch sessions');
       
       const data = await response.json();
       const serverSessions: Session[] = data.sessions || [];
       
-      // Get local sessions
-      const localSessions = await db.getAllSessions();
-      const localMap = new Map(localSessions.map(s => [s.id, s]));
-      
-      // Merge: server wins on conflicts (for getting other user's updates)
+      // Merge: server wins on conflicts
       for (const serverSession of serverSessions) {
-        const localSession = localMap.get(serverSession.id);
-        // Only update if server version is newer or doesn't exist locally
-        if (!localSession || serverSession.createdAt >= localSession.createdAt) {
-          await db.saveSession(serverSession);
-        }
+        await db.saveSession(serverSession);
       }
       
-      // Also sync settings
       await this.syncSettingsFromServer();
-      
       this.lastSyncTime = Date.now();
-    } catch (error) {
-      console.error('Sync from server failed:', error);
-      // Continue with local data if sync fails
+    } catch (error: any) {
+      if (error.name === 'AbortError') {
+        console.error('Sync timed out');
+      } else {
+        console.error('Sync failed:', error);
+      }
     } finally {
       this.syncInProgress = false;
     }

@@ -33,48 +33,29 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const initData = async () => {
-      await dbSync.init();
-      
-      // Set current user based on view mode
-      const currentUser = viewMode === 'Global' ? 'Yashwanth' : viewMode;
-      dbSync.setCurrentUser(currentUser);
-      
-      // Load from local cache first (fast)
-      let allSessions = await dbSync.getAllSessions();
-      let target = await dbSync.getSetting<number>('customTarget');
-      
-      // Migrate old localStorage data if needed
-      const oldData = localStorage.getItem('focusflow_v3_state');
-      if (allSessions.length === 0 && oldData) {
-        try {
-          const parsed = JSON.parse(oldData);
-          const migratedSessions = parsed.sessions || [];
-          const migratedTarget = parsed.customTarget || TARGET_MINUTES;
-          for (const s of migratedSessions) { 
-            await dbSync.saveSession(s);
-          }
-          await dbSync.setSetting('customTarget', migratedTarget);
-          allSessions = migratedSessions;
-          target = migratedTarget;
-        } catch (e) { 
-          console.error('Migration failed', e); 
-        }
+      try {
+        // Start init process with timeout to prevent hanging UI
+        const initPromise = dbSync.init();
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Init timeout')), 8000)
+        );
+
+        await Promise.race([initPromise, timeoutPromise]);
+      } catch (err) {
+        console.warn('Initial sync timed out or failed, using local cache:', err);
+      } finally {
+        // Always set loading to false even if sync fails
+        
+        // Load whatever we have in local cache (very fast)
+        const allSessions = await dbSync.getAllSessions();
+        const target = await dbSync.getSetting<number>('customTarget');
+        
+        setSessions(allSessions);
+        if (target) setCustomTarget(target);
+        
+        dbSync.startAutoSync();
+        setIsLoading(false);
       }
-      
-      setSessions(allSessions);
-      if (target) setCustomTarget(target);
-      
-      // Start auto-sync
-      dbSync.startAutoSync();
-      
-      // Sync from server in background
-      dbSync.syncFromServer().then(() => {
-        dbSync.getAllSessions().then(updatedSessions => {
-          setSessions(updatedSessions);
-        });
-      });
-      
-      setIsLoading(false);
     };
     initData();
   }, []);
