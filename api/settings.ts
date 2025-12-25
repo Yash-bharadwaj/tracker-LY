@@ -14,9 +14,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       if (key) {
         const value = await dbService.getSetting(userId, key);
+        res.setHeader('Cache-Control', 'no-store, max-age=0');
         res.status(200).json({ key, value });
       } else {
         const settings = await dbService.getAllSettings(userId);
+        res.setHeader('Cache-Control', 'no-store, max-age=0');
         res.status(200).json({ settings });
       }
     } catch (error: any) {
