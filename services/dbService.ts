@@ -1,24 +1,36 @@
-import { sql, createPool } from '@vercel/postgres';
+import { Pool } from 'pg';
 import { Session } from '../types';
 
 export class DbService {
   private initialized = false;
+  private pool: Pool | null = null;
 
   private async getPool() {
-    if (!process.env.POSTGRES_URL) {
+    if (this.pool) return this.pool;
+
+    const connectionString = process.env.POSTGRES_URL;
+    if (!connectionString) {
       throw new Error('POSTGRES_URL environment variable is not set');
     }
-    return sql;
+
+    this.pool = new Pool({
+      connectionString,
+      ssl: {
+        rejectUnauthorized: false // Required for Supabase/AWS
+      }
+    });
+
+    return this.pool;
   }
 
   async ensureTables() {
     if (this.initialized) return;
     
     try {
-      const db = await this.getPool();
+      const pool = await this.getPool();
       
       // Create sessions table
-      await db`
+      await pool.query(`
         CREATE TABLE IF NOT EXISTS sessions (
           id VARCHAR(255) PRIMARY KEY,
           "userId" VARCHAR(50) NOT NULL,
@@ -30,10 +42,10 @@ export class DbService {
           "createdAt" BIGINT NOT NULL,
           "updatedAt" BIGINT DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT
         )
-      `;
+      `);
 
       // Create settings table
-      await db`
+      await pool.query(`
         CREATE TABLE IF NOT EXISTS settings (
           "userId" VARCHAR(50) NOT NULL,
           key VARCHAR(255) NOT NULL,
@@ -41,7 +53,7 @@ export class DbService {
           "updatedAt" BIGINT DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT,
           PRIMARY KEY ("userId", key)
         )
-      `;
+      `);
 
       this.initialized = true;
       console.log('Database tables initialized');
@@ -54,19 +66,15 @@ export class DbService {
   async getAllSessions(userId?: string): Promise<Session[]> {
     await this.ensureTables();
     try {
-      const db = await this.getPool();
+      const pool = await this.getPool();
       let result;
       if (userId) {
-        result = await db`
-          SELECT * FROM sessions 
-          WHERE "userId" = ${userId}
-          ORDER BY date DESC, "startTime" DESC
-        `;
+        result = await pool.query(
+          'SELECT * FROM sessions WHERE "userId" = $1 ORDER BY date DESC, "startTime" DESC',
+          [userId]
+        );
       } else {
-        result = await db`
-          SELECT * FROM sessions 
-          ORDER BY date DESC, "startTime" DESC
-        `;
+        result = await pool.query('SELECT * FROM sessions ORDER BY date DESC, "startTime" DESC');
       }
       return result.rows.map(this.mapRowToSession);
     } catch (error) {
@@ -78,20 +86,18 @@ export class DbService {
   async getSessionsByDate(date: string, userId?: string): Promise<Session[]> {
     await this.ensureTables();
     try {
-      const db = await this.getPool();
+      const pool = await this.getPool();
       let result;
       if (userId) {
-        result = await db`
-          SELECT * FROM sessions 
-          WHERE date = ${date} AND "userId" = ${userId}
-          ORDER BY "startTime" ASC
-        `;
+        result = await pool.query(
+          'SELECT * FROM sessions WHERE date = $1 AND "userId" = $2 ORDER BY "startTime" ASC',
+          [date, userId]
+        );
       } else {
-        result = await db`
-          SELECT * FROM sessions 
-          WHERE date = ${date}
-          ORDER BY "startTime" ASC
-        `;
+        result = await pool.query(
+          'SELECT * FROM sessions WHERE date = $1 ORDER BY "startTime" ASC',
+          [date]
+        );
       }
       return result.rows.map(this.mapRowToSession);
     } catch (error) {
@@ -103,10 +109,8 @@ export class DbService {
   async getSessionById(id: string): Promise<Session | null> {
     await this.ensureTables();
     try {
-      const db = await this.getPool();
-      const result = await db`
-        SELECT * FROM sessions WHERE id = ${id}
-      `;
+      const pool = await this.getPool();
+      const result = await pool.query('SELECT * FROM sessions WHERE id = $1', [id]);
       if (result.rows.length === 0) return null;
       return this.mapRowToSession(result.rows[0]);
     } catch (error) {
@@ -118,11 +122,11 @@ export class DbService {
   async saveSession(session: Session): Promise<Session> {
     await this.ensureTables();
     try {
-      const db = await this.getPool();
+      const pool = await this.getPool();
       const now = Date.now();
-      await db`
+      await pool.query(`
         INSERT INTO sessions (id, "userId", date, "startTime", "endTime", task, "durationMinutes", "createdAt", "updatedAt")
-        VALUES (${session.id}, ${session.userId}, ${session.date}, ${session.startTime}, ${session.endTime}, ${session.task}, ${session.durationMinutes}, ${session.createdAt}, ${now})
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
         ON CONFLICT (id) 
         DO UPDATE SET
           "userId" = EXCLUDED."userId",
@@ -132,7 +136,11 @@ export class DbService {
           task = EXCLUDED.task,
           "durationMinutes" = EXCLUDED."durationMinutes",
           "updatedAt" = EXCLUDED."updatedAt"
-      `;
+      `, [
+        session.id, session.userId, session.date, session.startTime, 
+        session.endTime, session.task, session.durationMinutes, 
+        session.createdAt, now
+      ]);
       return session;
     } catch (error) {
       console.error('Error saving session:', error);
@@ -143,10 +151,8 @@ export class DbService {
   async deleteSession(id: string): Promise<void> {
     await this.ensureTables();
     try {
-      const db = await this.getPool();
-      await db`
-        DELETE FROM sessions WHERE id = ${id}
-      `;
+      const pool = await this.getPool();
+      await pool.query('DELETE FROM sessions WHERE id = $1', [id]);
     } catch (error) {
       console.error('Error deleting session:', error);
       throw error;
@@ -156,11 +162,11 @@ export class DbService {
   async getSetting<T>(userId: string, key: string): Promise<T | null> {
     await this.ensureTables();
     try {
-      const db = await this.getPool();
-      const result = await db`
-        SELECT value FROM settings 
-        WHERE "userId" = ${userId} AND key = ${key}
-      `;
+      const pool = await this.getPool();
+      const result = await pool.query(
+        'SELECT value FROM settings WHERE "userId" = $1 AND key = $2',
+        [userId, key]
+      );
       if (result.rows.length === 0) return null;
       return JSON.parse(result.rows[0].value || 'null') as T;
     } catch (error) {
@@ -172,16 +178,16 @@ export class DbService {
   async setSetting(userId: string, key: string, value: any): Promise<void> {
     await this.ensureTables();
     try {
-      const db = await this.getPool();
+      const pool = await this.getPool();
       const now = Date.now();
-      await db`
+      await pool.query(`
         INSERT INTO settings ("userId", key, value, "updatedAt")
-        VALUES (${userId}, ${key}, ${JSON.stringify(value)}, ${now})
+        VALUES ($1, $2, $3, $4)
         ON CONFLICT ("userId", key)
         DO UPDATE SET
           value = EXCLUDED.value,
           "updatedAt" = EXCLUDED."updatedAt"
-      `;
+      `, [userId, key, JSON.stringify(value), now]);
     } catch (error) {
       console.error('Error saving setting:', error);
       throw error;
@@ -191,11 +197,11 @@ export class DbService {
   async getAllSettings(userId: string): Promise<Record<string, any>> {
     await this.ensureTables();
     try {
-      const db = await this.getPool();
-      const result = await db`
-        SELECT key, value FROM settings 
-        WHERE "userId" = ${userId}
-      `;
+      const pool = await this.getPool();
+      const result = await pool.query(
+        'SELECT key, value FROM settings WHERE "userId" = $1',
+        [userId]
+      );
       const settings: Record<string, any> = {};
       result.rows.forEach(row => {
         try {
@@ -214,9 +220,9 @@ export class DbService {
   async clearAllData(): Promise<void> {
     await this.ensureTables();
     try {
-      const db = await this.getPool();
-      await db`DELETE FROM sessions`;
-      await db`DELETE FROM settings`;
+      const pool = await this.getPool();
+      await pool.query('DELETE FROM sessions');
+      await pool.query('DELETE FROM settings');
     } catch (error) {
       console.error('Error clearing data:', error);
       throw error;

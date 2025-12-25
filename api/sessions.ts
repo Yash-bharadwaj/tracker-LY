@@ -1,8 +1,10 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { dbService } from '../../services/dbService';
-import { Session } from '../../types';
+import { dbService } from '../services/dbService';
+import { Session } from '../types';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  res.setHeader('Cache-Control', 'no-store, max-age=0');
+
   if (req.method === 'GET') {
     try {
       const userId = req.query.userId as string | undefined;
@@ -16,11 +18,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         sessions = await dbService.getAllSessions(userId);
       }
 
-      res.setHeader('Cache-Control', 'no-store, max-age=0');
-      res.status(200).json({ sessions });
+      return res.status(200).json({ sessions });
     } catch (error: any) {
       console.error('Error in GET /api/sessions:', error);
-      res.status(500).json({ error: 'Failed to fetch sessions', message: error.message });
+      return res.status(500).json({ 
+        error: 'Failed to fetch sessions', 
+        message: error.message,
+        details: error.stack
+      });
     }
   } else if (req.method === 'POST') {
     try {
@@ -37,13 +42,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       };
 
       const savedSession = await dbService.saveSession(session);
-      res.status(201).json({ session: savedSession });
+      return res.status(201).json({ session: savedSession });
     } catch (error: any) {
       console.error('Error in POST /api/sessions:', error);
-      res.status(500).json({ error: 'Failed to create session', message: error.message });
+      return res.status(500).json({ 
+        error: 'Failed to create session', 
+        message: error.message,
+        details: error.stack
+      });
     }
   } else {
-    res.status(405).json({ error: 'Method not allowed' });
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 }
 

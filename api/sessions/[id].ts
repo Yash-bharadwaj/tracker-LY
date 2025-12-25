@@ -3,20 +3,23 @@ import { dbService } from '../../services/dbService';
 import { Session } from '../../types';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  res.setHeader('Cache-Control', 'no-store, max-age=0');
   const id = req.query.id as string;
 
   if (req.method === 'GET') {
     try {
       const session = await dbService.getSessionById(id);
       if (!session) {
-        res.status(404).json({ error: 'Session not found' });
-        return;
+        return res.status(404).json({ error: 'Session not found' });
       }
-      res.setHeader('Cache-Control', 'no-store, max-age=0');
-      res.status(200).json({ session });
+      return res.status(200).json({ session });
     } catch (error: any) {
       console.error('Error in GET /api/sessions/[id]:', error);
-      res.status(500).json({ error: 'Failed to fetch session', message: error.message });
+      return res.status(500).json({ 
+        error: 'Failed to fetch session', 
+        message: error.message,
+        details: error.stack
+      });
     }
   } else if (req.method === 'PUT') {
     try {
@@ -33,21 +36,28 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       };
 
       const savedSession = await dbService.saveSession(session);
-      res.status(200).json({ session: savedSession });
+      return res.status(200).json({ session: savedSession });
     } catch (error: any) {
       console.error('Error in PUT /api/sessions/[id]:', error);
-      res.status(500).json({ error: 'Failed to update session', message: error.message });
+      return res.status(500).json({ 
+        error: 'Failed to update session', 
+        message: error.message,
+        details: error.stack
+      });
     }
   } else if (req.method === 'DELETE') {
     try {
       await dbService.deleteSession(id);
-      res.status(200).json({ success: true });
+      return res.status(200).json({ success: true });
     } catch (error: any) {
       console.error('Error in DELETE /api/sessions/[id]:', error);
-      res.status(500).json({ error: 'Failed to delete session', message: error.message });
+      return res.status(500).json({ 
+        error: 'Failed to delete session', 
+        message: error.message,
+        details: error.stack
+      });
     }
   } else {
-    res.status(405).json({ error: 'Method not allowed' });
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 }
-
