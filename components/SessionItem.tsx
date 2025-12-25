@@ -20,31 +20,31 @@ const SessionItem: React.FC<SessionItemProps> = ({ session, onDelete, onEdit }) 
 
       <div 
         onClick={() => onEdit(session)}
-        className="relative bg-[#1a1a1a] border border-white/5 rounded-3xl p-5 active:bg-[#222] active:scale-[0.97] transition-all duration-200 z-10 flex items-center justify-between"
+        className="relative bg-[#1a1a1a] border border-white/5 rounded-2xl sm:rounded-3xl p-4 sm:p-5 active:bg-[#222] active:scale-[0.97] transition-all duration-200 z-10 flex items-center justify-between"
       >
-        <div className="flex-1">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="h-2 w-2 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.8)]" />
-            <span className="text-xs font-black text-white/40 uppercase tracking-widest flex items-center gap-1">
-              {session.startTime} <ArrowRight size={10} className="text-white/20" /> {session.endTime}
+        <div className="flex-1 min-w-0 pr-2">
+          <div className="flex items-center gap-2 sm:gap-3 mb-1.5 sm:mb-2">
+            <div className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.8)] flex-shrink-0" />
+            <span className="text-[10px] sm:text-xs font-black text-white/40 uppercase tracking-widest flex items-center gap-1">
+              {session.startTime} <ArrowRight size={9} className="sm:w-2.5 sm:h-2.5 text-white/20" /> {session.endTime}
             </span>
           </div>
-          <h3 className="text-white font-semibold text-lg leading-tight mb-1">{session.task}</h3>
-          <div className="flex items-center gap-2">
-             <Clock size={12} className="text-indigo-400" />
-             <span className="text-xs font-bold text-indigo-400/80">{formatDuration(session.durationMinutes)}</span>
+          <h3 className="text-white font-semibold text-base sm:text-lg leading-tight mb-1 truncate">{session.task}</h3>
+          <div className="flex items-center gap-1.5 sm:gap-2">
+             <Clock size={11} className="sm:w-3 sm:h-3 text-indigo-400 flex-shrink-0" />
+             <span className="text-[10px] sm:text-xs font-bold text-indigo-400/80">{formatDuration(session.durationMinutes)}</span>
           </div>
         </div>
         
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-0.5 sm:gap-1 flex-shrink-0">
           <button 
             onClick={(e) => {
               e.stopPropagation();
               onEdit(session);
             }}
-            className="p-3 text-white/20 hover:text-white transition-colors"
+            className="p-2 sm:p-3 text-white/20 hover:text-white transition-colors touch-manipulation"
           >
-            <Edit3 size={18} />
+            <Edit3 size={16} className="sm:w-4.5 sm:h-4.5" />
           </button>
           <button 
             onClick={(e) => {
@@ -53,9 +53,9 @@ const SessionItem: React.FC<SessionItemProps> = ({ session, onDelete, onEdit }) 
                 onDelete(session.id);
               }
             }}
-            className="p-3 text-white/10 hover:text-rose-500 transition-colors"
+            className="p-2 sm:p-3 text-white/10 hover:text-rose-500 transition-colors touch-manipulation"
           >
-            <Trash2 size={18} />
+            <Trash2 size={16} className="sm:w-4.5 sm:h-4.5" />
           </button>
         </div>
       </div>

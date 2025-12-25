@@ -209,50 +209,50 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col h-screen max-w-lg mx-auto bg-black text-white overflow-hidden relative selection:bg-indigo-500/30">
+    <div className="flex flex-col h-screen max-w-lg mx-auto bg-black text-white overflow-hidden relative selection:bg-indigo-500/30 touch-manipulation">
       {/* 3-Way Mode Switcher Header */}
-      <header className="px-6 pt-10 pb-4 flex flex-col gap-6 z-20">
-        <div className="flex items-center justify-between">
-          <div className="flex bg-white/5 p-1 rounded-2xl border border-white/5">
+      <header className="px-4 sm:px-6 pt-6 sm:pt-10 pb-3 sm:pb-4 flex flex-col gap-4 sm:gap-6 z-20">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex bg-white/5 p-0.5 sm:p-1 rounded-xl sm:rounded-2xl border border-white/5">
             <button 
               onClick={() => setViewMode('Yashwanth')}
-              className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${viewMode === 'Yashwanth' ? 'bg-indigo-500 text-white shadow-lg' : 'text-white/30'}`}
+              className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all ${viewMode === 'Yashwanth' ? 'bg-indigo-500 text-white shadow-lg' : 'text-white/30'}`}
             >
               Yash
             </button>
             <button 
               onClick={() => setViewMode('Lahari')}
-              className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${viewMode === 'Lahari' ? 'bg-indigo-500 text-white shadow-lg' : 'text-white/30'}`}
+              className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all ${viewMode === 'Lahari' ? 'bg-indigo-500 text-white shadow-lg' : 'text-white/30'}`}
             >
               Lahari
             </button>
             <button 
               onClick={() => setViewMode('Global')}
-              className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${viewMode === 'Global' ? 'bg-indigo-500 text-white shadow-lg' : 'text-white/30'}`}
+              className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all ${viewMode === 'Global' ? 'bg-indigo-500 text-white shadow-lg' : 'text-white/30'}`}
             >
               Team
             </button>
           </div>
           
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             {viewMode !== 'Global' && (
-              <button onClick={() => setIsStreakPageOpen(true)} className="flex items-center gap-2 bg-orange-500/10 text-orange-500 px-3 py-1.5 rounded-full border border-orange-500/20 active:scale-90 transition-transform">
-                <Flame size={14} fill="currentColor" />
-                <span className="font-black text-[10px] tracking-widest">{streakData.current}D</span>
+              <button onClick={() => setIsStreakPageOpen(true)} className="flex items-center gap-1.5 sm:gap-2 bg-orange-500/10 text-orange-500 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full border border-orange-500/20 active:scale-90 transition-transform">
+                <Flame size={12} className="sm:w-3.5 sm:h-3.5" fill="currentColor" />
+                <span className="font-black text-[9px] sm:text-[10px] tracking-widest">{streakData.current}D</span>
               </button>
             )}
             {/* Sync Status Indicator */}
             <div className="flex items-center gap-2">
               {isSyncing ? (
-                <div className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" title="Syncing..." />
+                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-indigo-500 animate-pulse" title="Syncing..." />
               ) : lastSyncTime > 0 ? (
-                <div className="w-2 h-2 rounded-full bg-emerald-500" title={`Last synced: ${new Date(lastSyncTime).toLocaleTimeString()}`} />
+                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-500" title={`Last synced: ${new Date(lastSyncTime).toLocaleTimeString()}`} />
               ) : (
-                <div className="w-2 h-2 rounded-full bg-white/20" title="Not synced yet" />
+                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-white/20" title="Not synced yet" />
               )}
             </div>
-            <button onClick={() => setIsMenuOpen(true)} className="w-10 h-10 flex items-center justify-center bg-white/5 rounded-2xl border border-white/5 active:scale-90 transition-all">
-              <Menu size={20} className="text-white/60" />
+            <button onClick={() => setIsMenuOpen(true)} className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center bg-white/5 rounded-xl sm:rounded-2xl border border-white/5 active:scale-90 transition-all">
+              <Menu size={18} className="sm:w-5 sm:h-5 text-white/60" />
             </button>
           </div>
         </div>
@@ -263,10 +263,10 @@ const App: React.FC = () => {
           <GlobalDashboard sessions={sessions} teamStats={teamStats} target={customTarget} />
         ) : (
           <>
-            <div className="px-6 py-3 sticky top-0 bg-black/80 backdrop-blur-md z-30 border-b border-white/5 mb-6">
-               <div className="flex items-center gap-2">
-                  <button onClick={() => shiftDate(-1)} className="p-3 bg-white/5 rounded-2xl border border-white/5 active:scale-90 active:bg-white/10 transition-all text-white/40">
-                    <ChevronLeft size={20} />
+            <div className="px-4 sm:px-6 py-2.5 sm:py-3 sticky top-0 bg-black/80 backdrop-blur-md z-30 border-b border-white/5 mb-4 sm:mb-6">
+               <div className="flex items-center gap-1.5 sm:gap-2">
+                  <button onClick={() => shiftDate(-1)} className="p-2 sm:p-3 bg-white/5 rounded-xl sm:rounded-2xl border border-white/5 active:scale-90 active:bg-white/10 transition-all text-white/40">
+                    <ChevronLeft size={18} className="sm:w-5 sm:h-5" />
                   </button>
                   <div className="relative flex-1 group">
                      <input 
@@ -279,70 +279,70 @@ const App: React.FC = () => {
                      />
                      <button 
                       onClick={openCalendar}
-                      className="w-full flex items-center justify-center gap-3 px-5 py-3 bg-white/5 border border-white/5 rounded-2xl active:bg-white/10 transition-colors"
+                      className="w-full flex items-center justify-center gap-2 sm:gap-3 px-3 sm:px-5 py-2 sm:py-3 bg-white/5 border border-white/5 rounded-xl sm:rounded-2xl active:bg-white/10 transition-colors"
                      >
-                        <CalendarIcon size={16} className="text-indigo-400" />
-                        <span className="text-sm font-black tracking-tight text-white/90">
+                        <CalendarIcon size={14} className="sm:w-4 sm:h-4 text-indigo-400" />
+                        <span className="text-xs sm:text-sm font-black tracking-tight text-white/90">
                           {displayDateLabel}
                         </span>
                      </button>
                   </div>
-                  <button onClick={() => shiftDate(1)} disabled={isToday} className={`p-3 rounded-2xl border transition-all ${isToday ? 'bg-transparent border-transparent opacity-0 pointer-events-none' : 'bg-white/5 border-white/5 active:scale-90 active:bg-white/10 text-white/40'}`}>
-                    <ChevronRight size={20} />
+                  <button onClick={() => shiftDate(1)} disabled={isToday} className={`p-2 sm:p-3 rounded-xl sm:rounded-2xl border transition-all ${isToday ? 'bg-transparent border-transparent opacity-0 pointer-events-none' : 'bg-white/5 border-white/5 active:scale-90 active:bg-white/10 text-white/40'}`}>
+                    <ChevronRight size={18} className="sm:w-5 sm:h-5" />
                   </button>
                   {!isToday && (
-                    <button onClick={() => setSelectedDate(getCurrentDateKey())} className="px-4 py-3 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded-2xl text-[10px] font-black uppercase tracking-widest active:scale-90 transition-transform">
+                    <button onClick={() => setSelectedDate(getCurrentDateKey())} className="px-3 sm:px-4 py-2 sm:py-3 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded-xl sm:rounded-2xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest active:scale-90 transition-transform">
                       Today
                     </button>
                   )}
                </div>
             </div>
 
-            <section className="px-6 py-4 flex flex-col items-center">
+            <section className="px-4 sm:px-6 py-3 sm:py-4 flex flex-col items-center">
               <ProgressBar percentage={percentage} label={formatDuration(totalMinutes)} subLabel="Productive Hours" />
-              <div className="grid grid-cols-2 gap-4 w-full mt-10">
-                <div className={`rounded-[2rem] p-6 flex flex-col border transition-all duration-500 ${isGoalReached ? 'bg-emerald-500/10 border-emerald-500/20' : 'bg-white/5 border-white/10'}`}>
-                  <div className="flex items-center gap-2 mb-2">
-                    <Target size={14} className={isGoalReached ? 'text-emerald-400' : 'text-white/40'} />
-                    <span className="text-[10px] uppercase font-black tracking-widest text-white/30">Target</span>
+              <div className="grid grid-cols-2 gap-3 sm:gap-4 w-full mt-6 sm:mt-10">
+                <div className={`rounded-[1.5rem] sm:rounded-[2rem] p-4 sm:p-6 flex flex-col border transition-all duration-500 ${isGoalReached ? 'bg-emerald-500/10 border-emerald-500/20' : 'bg-white/5 border-white/10'}`}>
+                  <div className="flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
+                    <Target size={12} className={`sm:w-3.5 sm:h-3.5 ${isGoalReached ? 'text-emerald-400' : 'text-white/40'}`} />
+                    <span className="text-[9px] sm:text-[10px] uppercase font-black tracking-widest text-white/30">Target</span>
                   </div>
-                  <span className={`text-xl font-black ${isGoalReached ? 'text-emerald-400' : 'text-white'}`}>{formatDuration(customTarget)}</span>
+                  <span className={`text-lg sm:text-xl font-black ${isGoalReached ? 'text-emerald-400' : 'text-white'}`}>{formatDuration(customTarget)}</span>
                 </div>
-                <div className="bg-white/5 border border-white/10 rounded-[2rem] p-6 flex flex-col">
-                  <div className="flex items-center gap-2 mb-2">
-                    <TrendingUp size={14} className="text-white/40" />
-                    <span className="text-[10px] uppercase font-black tracking-widest text-white/30">Status</span>
+                <div className="bg-white/5 border border-white/10 rounded-[1.5rem] sm:rounded-[2rem] p-4 sm:p-6 flex flex-col">
+                  <div className="flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
+                    <TrendingUp size={12} className="sm:w-3.5 sm:h-3.5 text-white/40" />
+                    <span className="text-[9px] sm:text-[10px] uppercase font-black tracking-widest text-white/30">Status</span>
                   </div>
-                  <span className={`text-xl font-black ${isGoalReached ? 'text-emerald-400' : totalMinutes > 0 ? 'text-indigo-400' : 'text-rose-500/60'}`}>
+                  <span className={`text-lg sm:text-xl font-black ${isGoalReached ? 'text-emerald-400' : totalMinutes > 0 ? 'text-indigo-400' : 'text-rose-500/60'}`}>
                     {isGoalReached ? 'GOLD ✅' : totalMinutes > 0 ? 'PARTIAL' : 'EMPTY ⭕'}
                   </span>
                 </div>
               </div>
             </section>
 
-            <section className="px-6 py-8">
-              <div className="flex items-center gap-3 mb-6">
-                <Users size={20} className="text-indigo-500" />
-                <h2 className="text-lg font-black tracking-tighter uppercase">Team Synergy</h2>
+            <section className="px-4 sm:px-6 py-6 sm:py-8">
+              <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+                <Users size={18} className="sm:w-5 sm:h-5 text-indigo-500" />
+                <h2 className="text-base sm:text-lg font-black tracking-tighter uppercase">Team Synergy</h2>
               </div>
-              <div className="bg-indigo-500/10 rounded-[2.5rem] p-6 border border-indigo-500/20 flex items-center justify-between">
+              <div className="bg-indigo-500/10 rounded-[2rem] sm:rounded-[2.5rem] p-4 sm:p-6 border border-indigo-500/20 flex items-center justify-between">
                 <div>
-                  <span className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em] block mb-1">Combined Effort</span>
-                  <span className="text-2xl font-black text-indigo-400">{teamStats.totalTogether.toFixed(1)}h Lifetime</span>
+                  <span className="text-[9px] sm:text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em] block mb-1">Combined Effort</span>
+                  <span className="text-xl sm:text-2xl font-black text-indigo-400">{teamStats.totalTogether.toFixed(1)}h Lifetime</span>
                 </div>
-                <div className="w-12 h-12 bg-indigo-500/20 rounded-2xl flex items-center justify-center text-indigo-400">
-                  <BarChart3 size={24} />
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-indigo-500/20 rounded-xl sm:rounded-2xl flex items-center justify-center text-indigo-400">
+                  <BarChart3 size={20} className="sm:w-6 sm:h-6" />
                 </div>
               </div>
             </section>
 
-            <section className="px-6">
-              <div className="flex justify-between items-end mb-6">
-                <div className="flex items-center gap-3">
-                  <Clock size={20} className="text-indigo-500" />
-                  <h2 className="text-lg font-black tracking-tighter uppercase">Timeline</h2>
+            <section className="px-4 sm:px-6">
+              <div className="flex justify-between items-end mb-4 sm:mb-6">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <Clock size={18} className="sm:w-5 sm:h-5 text-indigo-500" />
+                  <h2 className="text-base sm:text-lg font-black tracking-tighter uppercase">Timeline</h2>
                 </div>
-                <div className="text-[10px] font-black text-white/20 uppercase tracking-widest">{daySessions.length} sessions</div>
+                <div className="text-[9px] sm:text-[10px] font-black text-white/20 uppercase tracking-widest">{daySessions.length} sessions</div>
               </div>
               {daySessions.length > 0 ? (
                 <div className="space-y-1">
@@ -367,9 +367,9 @@ const App: React.FC = () => {
 
       {/* Floating Action Button - Only show on personal views */}
       {viewMode !== 'Global' && (
-        <div className="fixed bottom-0 left-0 right-0 px-8 pb-10 z-40 pointer-events-none flex justify-center items-center">
-          <button onClick={() => { setEditingSession(null); setIsSheetOpen(true); }} className="pointer-events-auto bg-indigo-500 hover:bg-indigo-600 active:scale-90 w-20 h-20 rounded-[2.5rem] flex items-center justify-center shadow-[0_25px_60px_rgba(99,102,241,0.4)] transition-all border-8 border-black group">
-            <Plus size={40} className="text-white group-hover:rotate-180 transition-transform duration-500" />
+        <div className="fixed bottom-0 left-0 right-0 px-4 sm:px-8 pb-6 sm:pb-10 z-40 pointer-events-none flex justify-center items-center">
+          <button onClick={() => { setEditingSession(null); setIsSheetOpen(true); }} className="pointer-events-auto bg-indigo-500 hover:bg-indigo-600 active:scale-90 w-16 h-16 sm:w-20 sm:h-20 rounded-[2rem] sm:rounded-[2.5rem] flex items-center justify-center shadow-[0_20px_40px_rgba(99,102,241,0.4)] sm:shadow-[0_25px_60px_rgba(99,102,241,0.4)] transition-all border-4 sm:border-8 border-black group">
+            <Plus size={32} className="sm:w-10 sm:h-10 text-white group-hover:rotate-180 transition-transform duration-500" />
           </button>
         </div>
       )}

@@ -95,77 +95,77 @@ const AddSessionSheet: React.FC<AddSessionSheetProps> = ({
         onClick={onClose}
       />
       
-      <div className="relative w-full max-w-lg bg-[#0a0a0a] border-t border-white/10 rounded-t-[3rem] p-8 shadow-[0_-20px_50px_rgba(0,0,0,0.5)] transition-all duration-500 transform translate-y-0 pointer-events-auto">
-        <div className="w-12 h-1.5 bg-white/10 rounded-full mx-auto mb-8" />
+      <div className="relative w-full max-w-lg bg-[#0a0a0a] border-t border-white/10 rounded-t-[2rem] sm:rounded-t-[3rem] p-5 sm:p-8 shadow-[0_-20px_50px_rgba(0,0,0,0.5)] transition-all duration-500 transform translate-y-0 pointer-events-auto max-h-[90vh] overflow-y-auto">
+        <div className="w-10 sm:w-12 h-1 sm:h-1.5 bg-white/10 rounded-full mx-auto mb-5 sm:mb-8" />
         
-        <div className="flex justify-between items-center mb-10">
+        <div className="flex justify-between items-center mb-6 sm:mb-10">
           <div>
-            <h2 className="text-3xl font-black text-white tracking-tighter">
+            <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tighter">
               {editingSession ? 'Adjust' : 'Log Focus'}
             </h2>
-            <p className="text-white/40 text-sm font-medium">Session for {userId}</p>
+            <p className="text-white/40 text-xs sm:text-sm font-medium">Session for {userId}</p>
           </div>
-          <button onClick={onClose} className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center text-white/40 active:scale-90 transition-transform">
-            <X size={20} />
+          <button onClick={onClose} className="w-9 h-9 sm:w-10 sm:h-10 bg-white/5 rounded-full flex items-center justify-center text-white/40 active:scale-90 transition-transform">
+            <X size={18} className="sm:w-5 sm:h-5" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-8">
+        <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-8">
           <div>
             <input
               type="text"
               value={task}
               onChange={(e) => setTask(e.target.value)}
               placeholder="What did you achieve?"
-              className="w-full bg-white/5 border-b-2 border-white/10 py-4 text-2xl font-bold text-white placeholder:text-white/10 focus:outline-none focus:border-indigo-500 transition-all"
+              className="w-full bg-white/5 border-b-2 border-white/10 py-3 sm:py-4 text-lg sm:text-2xl font-bold text-white placeholder:text-white/10 focus:outline-none focus:border-indigo-500 transition-all"
               autoFocus
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">Date</label>
+          <div className="grid grid-cols-2 gap-4 sm:gap-6">
+            <div className="space-y-1.5 sm:space-y-2">
+              <label className="text-[9px] sm:text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">Date</label>
               <input
                 type="date"
                 value={date}
                 max={getCurrentDateKey()}
                 onChange={(e) => setDate(e.target.value)}
-                className="w-full bg-white/5 rounded-2xl p-4 text-white font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500/20 [color-scheme:dark]"
+                className="w-full bg-white/5 rounded-xl sm:rounded-2xl p-3 sm:p-4 text-sm sm:text-base text-white font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500/20 [color-scheme:dark]"
               />
             </div>
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">Start Time</label>
+            <div className="space-y-1.5 sm:space-y-2">
+              <label className="text-[9px] sm:text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">Start Time</label>
               <input
                 type="time"
                 value={startTime}
                 onChange={(e) => setStartTime(e.target.value)}
-                className="w-full bg-white/5 rounded-2xl p-4 text-white font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500/20 [color-scheme:dark]"
+                className="w-full bg-white/5 rounded-xl sm:rounded-2xl p-3 sm:p-4 text-sm sm:text-base text-white font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500/20 [color-scheme:dark]"
               />
             </div>
           </div>
 
-          <div className="space-y-2">
-            <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">End Time</label>
+          <div className="space-y-1.5 sm:space-y-2">
+            <label className="text-[9px] sm:text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">End Time</label>
             <input
               type="time"
               value={endTime}
               onChange={(e) => setEndTime(e.target.value)}
-              className="w-full bg-white/5 rounded-2xl p-4 text-white font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500/20 [color-scheme:dark]"
+              className="w-full bg-white/5 rounded-xl sm:rounded-2xl p-3 sm:p-4 text-sm sm:text-base text-white font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500/20 [color-scheme:dark]"
             />
           </div>
 
           {error && (
-            <div className="flex items-center gap-3 p-4 bg-rose-500/10 border border-rose-500/20 rounded-2xl text-rose-400 text-sm font-bold animate-shake">
-              <AlertCircle size={18} />
+            <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 bg-rose-500/10 border border-rose-500/20 rounded-xl sm:rounded-2xl text-rose-400 text-xs sm:text-sm font-bold animate-shake">
+              <AlertCircle size={16} className="sm:w-4.5 sm:h-4.5" />
               {error}
             </div>
           )}
 
           <button
             type="submit"
-            className="w-full bg-indigo-500 hover:bg-indigo-600 active:scale-95 py-6 rounded-[2rem] text-white font-black text-xl shadow-[0_15px_30px_rgba(99,102,241,0.3)] transition-all flex items-center justify-center gap-3"
+            className="w-full bg-indigo-500 hover:bg-indigo-600 active:scale-95 py-4 sm:py-6 rounded-[1.5rem] sm:rounded-[2rem] text-white font-black text-base sm:text-xl shadow-[0_15px_30px_rgba(99,102,241,0.3)] transition-all flex items-center justify-center gap-2 sm:gap-3"
           >
-            <CheckCircle2 size={24} />
+            <CheckCircle2 size={20} className="sm:w-6 sm:h-6" />
             Commit Session
           </button>
         </form>
