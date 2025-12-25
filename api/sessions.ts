@@ -1,5 +1,5 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import { getPool } from './_db';
+import { getPool, mapSession } from './_db';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader('Cache-Control', 'no-store, max-age=0');
@@ -16,7 +16,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       } else {
         result = await pool.query('SELECT * FROM sessions ORDER BY date DESC, "startTime" DESC');
       }
-      res.status(200).json({ sessions: result.rows });
+      // Properly map Postgres BIGINT to JS numbers
+      const sessions = result.rows.map(mapSession);
+      res.status(200).json({ sessions });
     } else if (req.method === 'POST') {
       const { id, userId, date, startTime, endTime, task, durationMinutes, createdAt } = req.body;
       await pool.query(`

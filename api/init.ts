@@ -6,6 +6,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const pool = getPool();
     const client = await pool.connect();
     try {
+      // Execute queries one by one for maximum compatibility
       await client.query(`
         CREATE TABLE IF NOT EXISTS sessions (
           id VARCHAR(255) PRIMARY KEY,
@@ -17,15 +18,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           "durationMinutes" INTEGER NOT NULL,
           "createdAt" BIGINT NOT NULL,
           "updatedAt" BIGINT DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT
-        );
+        )
+      `);
+      
+      await client.query(`
         CREATE TABLE IF NOT EXISTS settings (
           "userId" VARCHAR(50) NOT NULL,
           key VARCHAR(255) NOT NULL,
           value TEXT,
           "updatedAt" BIGINT DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT,
           PRIMARY KEY ("userId", key)
-        );
+        )
       `);
+      
       res.status(200).json({ success: true, message: 'Database initialized successfully' });
     } finally {
       client.release();
